@@ -12,7 +12,8 @@
 #ifndef __DELAY_H
 #define __DELAY_H
 
-#include "stm32/auto_include.h"
+#include "stm32_includer.h"
+#include STM32_INCLUDE(BOARD_STM32, hal_def)
 #include <stdbool.h>
 #include <stdint.h>
 

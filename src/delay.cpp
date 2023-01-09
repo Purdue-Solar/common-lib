@@ -6,9 +6,9 @@ namespace PSR
 void delayMicroseconds(TIM_HandleTypeDef* timer1MHz, uint32_t microseconds)
 {
 	__HAL_TIM_SET_COUNTER(timer1MHz, 0); // set the counter value a 0
-	while (__HAL_TIM_GET_COUNTER(timer1MHz) < us)
+	while (__HAL_TIM_GET_COUNTER(timer1MHz) < microseconds)
 	{
-	} // wait for the counter to reach the us input in the parameter
+	} // wait for the counter to reach the microseconds value
 }
 
 void delayMilliseconds(TIM_HandleTypeDef* timer1MHz, uint32_t milliseconds)
