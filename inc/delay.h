@@ -13,7 +13,8 @@
 #define __DELAY_H
 
 #include "stm32_includer.h"
-#include STM32_INCLUDE(BOARD_STM32, hal_def)
+#include STM32_INCLUDE(BOARD_STM32, hal.h)
+#include STM32_INCLUDE(BOARD_STM32, hal_def.h)
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -38,4 +39,4 @@ void delayMilliseconds(TIM_HandleTypeDef* timer1MHz, uint32_t milliseconds);
 
 } // namespace PSR
 
-#endif __DELAY_H // End of include guard for delay.h
+#endif // End of include guard for delay.h
