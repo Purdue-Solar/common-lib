@@ -31,5 +31,17 @@
 *.out
 *.app
 
+# STM32 Cube IDE build artifacts
+/Debug
+/Debug/*
+/Release
+/Release/*
+
+# STM32 Cube IDE debug configurations
+*.launch
+
+# STM32 Cube IDE settings
+.settings/*
+
 # VS Code
-.vscode
+.vscode/
