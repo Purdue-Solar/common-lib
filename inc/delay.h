@@ -13,7 +13,7 @@
 #define __DELAY_H
 
 #include "stm32_includer.h"
-#include STM32_INCLUDE(BOARD_STM32, hal_def)
+#include STM32_INCLUDE(BOARD_STM32, hal_def.h)
 #include <stdbool.h>
 #include <stdint.h>
 
