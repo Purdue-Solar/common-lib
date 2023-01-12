@@ -46,6 +46,48 @@ int_type bitExtract(int_type value, int index, int count)
 	return (value >> index) & (((int_type)1 << count) - 1);
 }
 
+/**
+ * @brief Tests if a bit specified by an index is set in an integer
+ * 
+ * @tparam int_type the integer type of the value
+ * @param value the value to test
+ * @param index the index of the bit to test
+ * @return bool whether the bit at the specified index is set
+ */
+template <class int_type>
+bool isBitSet(int_type value, int index)
+{
+	return ((value >> index) & 1) == 1;
+}
+
+/**
+ * @brief Set the bit at a specified index to 1
+ * 
+ * @tparam int_type the integer type of the value
+ * @param value the value to change
+ * @param index the index of the bit to set
+ * @return int_type the modified value
+ */
+template <class int_type>
+int_type setBit(int_type value, int index)
+{
+	return value | ((int_type)1 << index);
+}
+
+/**
+ * @brief Set the bit at a specified index to 0
+ * 
+ * @tparam int_type the integer type of the value
+ * @param value the value to change
+ * @param index the index of the bit to clear
+ * @return int_type the modified value
+ */
+template <class int_type>
+int_type clearBit(int_type value, int index)
+{
+	return value & ~((int_type)1 << index);
+}
+
 } // namespace PSR
 
 #endif // End of include guard for bit_opeartions.h
