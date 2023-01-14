@@ -11,7 +11,6 @@
 #ifndef __BIT_OPERATIONS_H
 #define __BIT_OPERATIONS_H
 
-#include <bit>
 #include <limits.h>
 #include <stdint.h>
 #include <type_traits>
@@ -144,7 +143,10 @@ constexpr T rotateRight(T value, int amount)
  * @return T The value with byte order reversed
  */
 template <typename T>
-constexpr T reverseEndianness(T value)
+#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
+constexpr
+#endif
+ T reverseEndianness(T value)
 {
 	__ASSERT_INTEGRAL(T);
 	using uT           = typename std::make_unsigned<T>::type;
@@ -170,7 +172,10 @@ constexpr T reverseEndianness(T value)
  * @return T The value with byte order reversed
  */
 template <>
-constexpr uint64_t reverseEndianness<uint64_t>(uint64_t value)
+#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
+constexpr
+#endif
+uint64_t reverseEndianness<uint64_t>(uint64_t value)
 {
 	return ((uint64_t)reverseEndianness((uint32_t)value) << 32) + reverseEndianness((uint32_t)(value >> 32));
 }
@@ -184,7 +189,10 @@ constexpr uint64_t reverseEndianness<uint64_t>(uint64_t value)
  * @return T The value with byte order reversed
  */
 template <>
-constexpr int64_t reverseEndianness<int64_t>(int64_t value)
+#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
+constexpr
+#endif
+int64_t reverseEndianness<int64_t>(int64_t value)
 {
 	return (int64_t)reverseEndianness((uint64_t)value);
 }
