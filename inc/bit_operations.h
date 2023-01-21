@@ -49,10 +49,8 @@ template <typename T>
 constexpr T bitExtract(T value, int index, int count)
 {
 	__ASSERT_INTEGRAL(T);
-	using uT           = typename std::make_unsigned<T>::type;
-	constexpr int bits = CHAR_BIT * sizeof(uT);
 
-	return (value >> index) & (((uT)1 << count) - 1);
+	return (value >> index) & ((1ull << count) - 1);
 }
 
 /**
