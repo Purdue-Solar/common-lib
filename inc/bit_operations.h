@@ -1,7 +1,7 @@
 /**
  * @file bit_operations.h
  * @author Purdue Solar Racing (Aidan Orr)
- * @brief
+ * @brief Implementation of common bit-level operations for all integer types
  * @version 0.3
  *
  * @copyright Copyright (c) 2023
@@ -11,8 +11,8 @@
 #ifndef __BIT_OPERATIONS_H
 #define __BIT_OPERATIONS_H
 
-#include <limits.h>
-#include <stdint.h>
+#include <climits>
+#include <cstdint>
 #include <type_traits>
 
 // Assert that types are integral and not pointers to make warnings and errors more helpful.
@@ -49,7 +49,10 @@ template <typename T>
 constexpr T bitExtract(T value, int index, int count)
 {
 	__ASSERT_INTEGRAL(T);
-	return (value >> index) & (((T)1 << count) - 1);
+	using uT           = typename std::make_unsigned<T>::type;
+	constexpr int bits = CHAR_BIT * sizeof(uT);
+
+	return (value >> index) & (((uT)1 << count) - 1);
 }
 
 /**
@@ -143,10 +146,11 @@ constexpr T rotateRight(T value, int amount)
  * @return T The value with byte order reversed
  */
 template <typename T>
-#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
+#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR)) // Arduino does not like constexpr here
 constexpr
 #endif
- T reverseEndianness(T value)
+	T
+	reverseEndianness(T value)
 {
 	__ASSERT_INTEGRAL(T);
 	using uT           = typename std::make_unsigned<T>::type;
@@ -155,46 +159,13 @@ constexpr
 
 	// Most compilers will replace this block with a processor-specific reverse instruction
 	uT output = 0;
+#pragma GCC unroll 8
 	for (int i = 0; i < sizeof(uT); ++i)
 	{
-		output |= ((uv >> (i * CHAR_BIT)) & 0xFF) << (bits - CHAR_BIT - (i * CHAR_BIT));
+		output |= bitExtract(uv, i, CHAR_BIT) << (bits - CHAR_BIT - i);
 	}
 
 	return output;
-}
-
-// Template specialization for compilers that don't properly replace with processor-specific instructions
-/**
- * @brief Reverses the order of bytes in the input
- *
- * @tparam T The integer type of the value
- * @param value The value to be reversed
- * @return T The value with byte order reversed
- */
-template <>
-#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
-constexpr
-#endif
-uint64_t reverseEndianness<uint64_t>(uint64_t value)
-{
-	return ((uint64_t)reverseEndianness((uint32_t)value) << 32) + reverseEndianness((uint32_t)(value >> 32));
-}
-
-// Template specialization for compilers that don't properly replace with processor-specific instructions
-/**
- * @brief Reverses the order of bytes in the input
- *
- * @tparam T The integer type of the value
- * @param value The value to be reversed
- * @return T The value with byte order reversed
- */
-template <>
-#if !(defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_AVR))	// Arduino does not like constexpr here
-constexpr
-#endif
-int64_t reverseEndianness<int64_t>(int64_t value)
-{
-	return (int64_t)reverseEndianness((uint64_t)value);
 }
 
 } // namespace PSR
