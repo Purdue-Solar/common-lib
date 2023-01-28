@@ -158,9 +158,9 @@ constexpr
 	// Most compilers will replace this block with a processor-specific reverse instruction
 	uT output = 0;
 #pragma GCC unroll 8
-	for (int i = 0; i < sizeof(uT); ++i)
+	for (int i = 0; i < sizeof(uT) * CHAR_BIT; i += CHAR_BIT)
 	{
-		output |= bitExtract(uv, i, CHAR_BIT) << (bits - CHAR_BIT - i);
+		output |= ((uv >> i) & 0xFF) << (bits - CHAR_BIT - i);
 	}
 
 	return output;
