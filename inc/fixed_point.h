@@ -95,7 +95,7 @@ struct FixedPoint
 	 *
 	 * @param intValue the integer value to set
 	 */
-	constexpr FixedPoint(Tint intValue)
+	constexpr FixedPoint(int intValue)
 		: _value(intValue << fracBits) {}
 
 	/**
@@ -103,7 +103,23 @@ struct FixedPoint
 	 *
 	 * @param intValue the integer value to set
 	 */
-	constexpr FixedPoint(sTint intValue)
+	constexpr FixedPoint(unsigned int intValue)
+		: _value(intValue << fracBits) {}
+
+	/**
+	 * @brief Initializes the fixed point value with its integer part
+	 *
+	 * @param intValue the integer value to set
+	 */
+	constexpr FixedPoint(long intValue)
+		: _value(intValue << fracBits) {}
+
+	/**
+	 * @brief Initializes the fixed point value with its integer part
+	 *
+	 * @param intValue the integer value to set
+	 */
+	constexpr FixedPoint(unsigned long intValue)
 		: _value(intValue << fracBits) {}
 
 	/**
@@ -327,9 +343,19 @@ constexpr FP16_16 operator""_fp(long double value)
 	return FP16_16(value);
 }
 
+constexpr FP16_16 operator""_fp(unsigned long long int value)
+{
+	return FP16_16((unsigned long)value);
+}
+
 constexpr FP8_8 operator""_fp8_8(long double value)
 {
 	return FP8_8(value);
+}
+
+constexpr FP8_8 operator""_fp8_8(unsigned long long int value)
+{
+	return FP8_8((unsigned long)value);
 }
 
 constexpr FP16_16 operator""_fp16_16(long double value)
@@ -337,9 +363,19 @@ constexpr FP16_16 operator""_fp16_16(long double value)
 	return FP16_16(value);
 }
 
+constexpr FP16_16 operator""_fp16_16(unsigned long long int value)
+{
+	return FP16_16((unsigned long)value);
+}
+
 constexpr FP32_32 operator""_fp32_32(long double value)
 {
 	return FP32_32(value);
+}
+
+constexpr FP32_32 operator""_fp32_32(unsigned long long int value)
+{
+	return FP32_32((unsigned long)value);
 }
 
 } // namespace PSR
