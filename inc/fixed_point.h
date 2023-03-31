@@ -193,6 +193,11 @@ struct FixedPoint
 		return FixedPoint<newFracBits, newIntType>(intPart, fracPart);
 	}
 
+	constexpr Tint asRaw() const
+	{
+		return _value;
+	}
+
 	friend constexpr FixedPoint<fracBits, Tint> operator+(
 		const FixedPoint<fracBits, Tint>& value)
 	{
@@ -202,7 +207,7 @@ struct FixedPoint
 	friend constexpr FixedPoint<fracBits, Tint> operator-(
 		const FixedPoint<fracBits, Tint>& value)
 	{
-		return FromRaw((Tint) - (sTint)value);
+		return FromRaw((Tint) - (sTint)value._value);
 	}
 
 	friend constexpr FixedPoint<fracBits, Tint> operator+(
@@ -253,7 +258,7 @@ struct FixedPoint
 		Tint v1 = r & HALF_BITS_MASK;
 
 		Tint t = u1 * v1;
-		Tint w3 = t & HALF_BITS_MASK;
+		//Tint w3 = t & HALF_BITS_MASK;
 		Tint k = t >> HALF_BITS;
 
 		t = u0 * v1 + k;
@@ -279,14 +284,10 @@ struct FixedPoint
 	friend constexpr FixedPoint<fracBits, Tint> operator/(FixedPoint<fracBits, Tint> left, FixedPoint<otherFracBits, Tint> right)
 	{
 		Tint lv = left._value;
-		Tint rv = right._value;
+		Tint rv = right.asRaw();
 
 		Tint q = lv / rv;
-		int bitDiff = fracBits - otherFracBits;
-		if (bitDiff < 0)
-			q >>= -bitDiff;
-		else
-			q <<= bitDiff;
+		q <<= otherFracBits;
 
 		return FromRaw(q);
 	}
@@ -371,11 +372,6 @@ constexpr FP16_16 operator""_fp16_16(unsigned long long int value)
 constexpr FP32_32 operator""_fp32_32(long double value)
 {
 	return FP32_32(value);
-}
-
-constexpr FP32_32 operator""_fp32_32(unsigned long long int value)
-{
-	return FP32_32((unsigned long)value);
 }
 
 } // namespace PSR
