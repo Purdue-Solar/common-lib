@@ -287,6 +287,7 @@ struct FixedPoint
 		return (sTint)left._value >= (sTint)right._value;
 	}
 
+	explicit operator sTint() { return ((sTint)_value) >> fracBits; }
 	explicit operator Tint() { return _value >> fracBits; }
 	explicit operator float() { return (float)_value / _scaling; }
 	explicit operator double() { return (double)_value / _scaling; }
