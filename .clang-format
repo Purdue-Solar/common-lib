@@ -24,11 +24,13 @@ PointerAlignment: Left
 AlignConsecutiveMacros: Consecutive
 AlignEscapedNewlines: Right
 AlignTrailingComments: true
-AlignConsecutiveAssignments: Consecutive
+#AlignConsecutiveAssignments: Consecutive
 
 AlignOperands: Align
 AllowShortBlocksOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
 BinPackParameters: false
 AlignArrayOfStructures: Right
 

@@ -30,25 +30,14 @@ namespace PSR
  * @param timer1MHz A reference to a 1MHz timer.
  * @param microseconds The number of microseconds to delay.
  */
-void delayMicroseconds(TIM_HandleTypeDef* timer1MHz, uint32_t microseconds)
+void delayMicroseconds(TIM_HandleTypeDef* timer1MHz, uint16_t microseconds)
 {
-	__HAL_TIM_SET_COUNTER(timer1MHz, 0); // set the counter value a 0
-	while (__HAL_TIM_GET_COUNTER(timer1MHz) < microseconds)
-	{
-} // wait for the counter to reach the microseconds value
+	TIM_TypeDef* instance = timer1MHz->Instance;
+	instance->CR1 |= TIM_CR1_CEN;        // Ensure the timer is enabled
+	instance->CNT = 0;                   // Set the counter to 0
+	while (instance->CNT < microseconds) // Wait until count reaches the microsecond count
+	{}
 }
-
-/**
- * @brief Wait for a specific number of milleseconds before continuing.
- *
- * @param timer1MHz A reference to a 1MHz timer.
- * @param millesconds Thre number of milleseconds to delay.
- */
-void delayMilliseconds(TIM_HandleTypeDef* timer1MHz, uint32_t milliseconds)
-{
-	delayMicroseconds(timer1MHz, 1000 * milliseconds);
-}
-
 
 } // namespace PSR
 
