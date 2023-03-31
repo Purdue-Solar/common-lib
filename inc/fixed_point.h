@@ -99,6 +99,14 @@ struct FixedPoint
 		: _value(intValue << fracBits) {}
 
 	/**
+	 * @brief Initializes the fixed point value with its integer part
+	 *
+	 * @param intValue the integer value to set
+	 */
+	constexpr FixedPoint(sTint intValue)
+		: _value(intValue << fracBits) {}
+
+	/**
 	 * @brief Initialize the fixed point value with an integer and fractional
 	 * part
 	 *
@@ -251,6 +259,22 @@ struct FixedPoint
 		return *this = *this * right;
 	}
 
+	template <size_t otherFracBits>
+	friend constexpr FixedPoint<fracBits, Tint> operator/(FixedPoint<fracBits, Tint> left, FixedPoint<otherFracBits, Tint> right)
+	{
+		Tint lv = left._value;
+		Tint rv = right._value;
+
+		Tint q = lv / rv;
+		int bitDiff = fracBits - otherFracBits;
+		if (bitDiff < 0)
+			q >>= -bitDiff;
+		else
+			q <<= bitDiff;
+
+		return FromRaw(q);
+	}
+
 	friend constexpr bool operator==(const FixedPoint<fracBits, Tint>& left,
 	                                 const FixedPoint<fracBits, Tint>& right)
 	{
@@ -296,7 +320,6 @@ struct FixedPoint
 
 using FP8_8 = FixedPoint<8, uint16_t>;
 using FP16_16 = FixedPoint<16, uint32_t>;
-using FP8_24 = FixedPoint<24, uint32_t>;
 using FP32_32 = FixedPoint<32, uint64_t>;
 
 constexpr FP16_16 operator""_fp(long double value)
