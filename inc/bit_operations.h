@@ -158,7 +158,7 @@ constexpr
 	// Most compilers will replace this block with a processor-specific reverse instruction
 	uT output = 0;
 #pragma GCC unroll 8
-	for (int i = 0; i < sizeof(uT) * CHAR_BIT; i += CHAR_BIT)
+	for (unsigned int i = 0; i < sizeof(uT) * CHAR_BIT; i += CHAR_BIT)
 	{
 		output |= ((uv >> i) & 0xFF) << (bits - CHAR_BIT - i);
 	}
