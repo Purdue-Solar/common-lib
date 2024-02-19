@@ -11,13 +11,13 @@
 #ifndef __DELAY_H
 #define __DELAY_H
 
-#ifndef BOARD_STM32
+#ifndef STM32_PROCESSOR
 #error "delay.h is only implemented on STM32 boards with the HAL library."
 #endif
 
 #include "stm32_includer.h"
-#include STM32_INCLUDE(BOARD_STM32, hal.h)
-#include STM32_INCLUDE(BOARD_STM32, hal_def.h)
+#include STM32_INCLUDE(STM32_PROCESSOR, hal.h)
+#include STM32_INCLUDE(STM32_PROCESSOR, hal_def.h)
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -36,6 +36,14 @@ void delayMicroseconds(TIM_HandleTypeDef* timer1MHz, uint16_t microseconds)
 	instance->CR1 |= TIM_CR1_CEN;        // Ensure the timer is enabled
 	instance->CNT = 0;                   // Set the counter to 0
 	while (instance->CNT < microseconds) // Wait until count reaches the microsecond count
+	{}
+}
+
+void delayMicroseconds(TIM_TypeDef* timer1MHz, uint16_t microseconds)
+{
+	timer1MHz->CR1 |= TIM_CR1_CEN;        // Ensure the timer is enabled
+	timer1MHz->CNT = 0;                   // Set the counter to 0
+	while (timer1MHz->CNT < microseconds) // Wait until count reaches the microsecond count
 	{}
 }
 
