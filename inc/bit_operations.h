@@ -166,6 +166,34 @@ constexpr
 	return output;
 }
 
+/**
+ * @brief Count the number of leading zeros in an integer
+ * 
+ * @tparam T the integer type of the value
+ * @param value the value to count leading zeros in
+ * @return int the number of leading zeros
+ */
+template <typename T>
+constexpr int countLeadingZeros(T value)
+{
+	__ASSERT_INTEGRAL(T);
+    return __builtin_clz(value);
+}
+
+/**
+ * @brief Count the number of trailing zeros in an integer
+ * 
+ * @tparam T the integer type of the value
+ * @param value the value to count trailing zeros in
+ * @return int the number of trailing zeros
+ */
+template <typename T>
+constexpr int countTrailingZeros(T value)
+{
+	__ASSERT_INTEGRAL(T);
+    return __builtin_ctz(value);
+}
+
 } // namespace PSR
 
 #endif // End of include guard for bit_opeartions.h
