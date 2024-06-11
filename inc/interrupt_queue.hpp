@@ -1,20 +1,12 @@
-/*
- * interrupt_queue.hpp
- *
- *  Created on: Jun 2, 2024
- *      Author: aidan
- */
-
-#ifndef INC_INTERRUPT_QUEUE_HPP_
-#define INC_INTERRUPT_QUEUE_HPP_
+#pragma once
 
 #include "stm32_includer.h"
 #include STM32_INCLUDE(STM32_PROCESSOR, hal.h)
 #include STM32_INCLUDE(STM32_PROCESSOR, hal_def.h)
 
+#include <array>
 #include <functional>
 #include <queue>
-#include <cstdio>
 
 namespace PSR
 {
@@ -40,12 +32,11 @@ class InterruptQueue
   public:
 	static void AddInterrupt(const Interrupt& interrupt)
 	{
-		Queue[InterruptQueue::InterruptsPending++] = interrupt;
+		Queue[InterruptQueue::InterruptsPending] = interrupt;
+		InterruptQueue::InterruptsPending = InterruptQueue::InterruptsPending + 1;
 	}
 
 	static void HandleQueue();
 };
 
 } // namespace PSR
-
-#endif /* INC_INTERRUPT_QUEUE_HPP_ */
