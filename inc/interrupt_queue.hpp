@@ -25,7 +25,7 @@ struct Interrupt
 
 class InterruptQueue
 {
-	static constexpr size_t MaxDepth = 32;
+	static constexpr size_t MaxDepth = 64;
 	static std::array<Interrupt, MaxDepth> Queue;
 	static volatile size_t InterruptsPending;
 

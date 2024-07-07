@@ -194,6 +194,27 @@ constexpr int countTrailingZeros(T value)
     return __builtin_ctz(value);
 }
 
+/**
+ * @brief Check if a flag is set in an enum
+ * 
+ * @tparam T the enum type
+ * @param value the value to check
+ * @param flag the flag to check
+ * @return true if the flag is set
+ */
+template <typename T>
+constexpr bool hasFlag(T value, T flag)
+{
+	static_assert(std::is_enum<T>::value, "T must be an enum type.");
+
+    using uT = typename std::underlying_type<T>::type;
+
+	uT v = static_cast<uT>(value);
+	uT f = static_cast<uT>(flag);
+
+	return (v & f) == f;
+}
+
 } // namespace PSR
 
 #endif // End of include guard for bit_opeartions.h
