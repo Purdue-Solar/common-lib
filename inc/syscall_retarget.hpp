@@ -7,6 +7,12 @@
 #include <functional>
 #include <cstdio>
 
+#define CLEAR_SCREEN "\e[2J"
+#define CURSOR_HOME  "\e[H"
+#define CLEAR_LINE   "\e[2K"
+#define CURSOR_UP(n) "\e[" #n "A"
+#define CURSOR_DOWN(n) "\e[" #n "B"
+
 void SyscallUARTRetarget(UART_HandleTypeDef* huart, uint32_t timeout, std::function<void()> onTxStart, std::function<void()> onTxEnd);
 
 // Debug print
