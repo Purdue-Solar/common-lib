@@ -6,7 +6,7 @@ using namespace PSR;
 
 void HighPrecisionCounter::Update()
 {
-	if (this->tim == nullptr)
+	if (this->tim == nullptr || !this->isInitialized)
 		return;
 
 	this->upperCount += this->timerPrecision;
@@ -24,7 +24,7 @@ bool HighPrecisionCounter::Init()
 
 	tim->CR1  = 0;
 	tim->DIER = TIM_DIER_UIE;
-	tim->PSC  = clockFreq / 1000000;
+	tim->PSC  = clockFreq / 1000000 - 1;
 	tim->ARR  = timerPrecision - 1;
 	tim->CNT  = 0xFFFFFFFF;
 	tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
@@ -44,7 +44,7 @@ void HighPrecisionCounter::HandleDelayCallbacks()
 		DelayedCallback& delayedCallback = delayedCallbacks[i];
 		if (delayedCallback.Callback != nullptr && delayedCallback.DelayUntil != 0 && count >= delayedCallback.DelayUntil)
 		{
-			InterruptQueue::AddInterrupt(Interrupt(delayedCallback.Callback));
+			InterruptQueue::AddInterrupt(delayedCallback.Callback);
 
 			delayedCallback.DelayUntil = 0;
 			delayedCallback.Callback   = nullptr;

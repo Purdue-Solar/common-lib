@@ -47,13 +47,13 @@ class Scheduler
 	/// @brief The enabled tasks
 	std::bitset<MaxTasks> enabledTasks;
 
-	static constexpr size_t u = sizeof(tasks);
-
 	/// @brief The internal counter used to track the scheduler
 	uint32_t counter = 0;
 
 	/// @brief The tick frequency of the scheduler
 	const uint32_t frequency;
+	/// @brief The timer precision
+	const uint32_t timerPrecision;
 	/// @brief The number of ticks before the scheduler rolls over
 	const uint32_t timerRollOver;
 
@@ -85,9 +85,9 @@ class Scheduler
 	 * @param frequency The tick frequency of the scheduler
 	 * @param rollOver The number of ticks before the scheduler rolls over
 	 */
-	Scheduler(TIM_TypeDef* tim, uint32_t frequency, uint32_t rollOver = std::numeric_limits<uint32_t>::max())
-		: tim(tim), tasks(), intervals(), startOffsets(), nextUpdates(), enabledTasks(), frequency(frequency), timerRollOver(rollOver)
-	{}
+	Scheduler(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision = 32, uint32_t rollOver = std::numeric_limits<uint32_t>::max())
+		: tim(tim), tasks(), intervals(), startOffsets(), nextUpdates(), enabledTasks(), frequency(frequency), timerPrecision(precision), timerRollOver(rollOver)
+	{ }
 
 	constexpr size_t size() const
 	{
@@ -115,59 +115,13 @@ class Scheduler
 	 *
 	 * @return `bool` Whether the scheduler was initialized successfully, or is already initialized
 	 */
-	bool Init()
-	{
-		if (isInitialized)
-			return true;
-
-		if (tim == nullptr || frequency == 0 || frequency > HAL_RCC_GetSysClockFreq())
-			return false;
-
-		SetTimerFrequency(tim, frequency, 1);
-		tim->DIER |= TIM_DIER_UIE;
-		tim->CR1 |= TIM_CR1_CEN | TIM_CR1_ARPE;
-
-		tasks.fill(nullptr);
-		intervals.fill(0);
-		nextUpdates.fill(0);
-		enabledTasks.reset();
-
-		isInitialized = true;
-
-		return true;
-	}
+	bool Init();
 
 	/**
 	 * @brief Update the scheduler, adding tasks to the interrupt queue when they are due
 	 * @remark This function should be called in the timer interrupt
 	 */
-	void Update()
-	{
-		if (!isInitialized)
-			return;
-
-		if (++counter >= timerRollOver)
-			counter = 0;
-
-		for (size_t i = 0; i < MaxTasks; i++)
-		{
-			if (tasks[i] == nullptr || !enabledTasks[i])
-				continue;
-
-			if (counter >= nextUpdates[i])
-			{
-				InterruptQueue::AddInterrupt(tasks[i]);
-				if (intervals[i] == 0)
-				{
-					RemoveTask(i);
-				}
-				else
-				{
-					nextUpdates[i] = GetNextUpdate(counter, timerRollOver, intervals[i]);
-				}
-			}
-		}
-	}
+	void Update() __attribute__((section(".RamFunc")));
 
 	/**
 	 * @brief Add a task to the scheduler
@@ -178,26 +132,7 @@ class Scheduler
 	 * @param enabled Whether the task is enabled
 	 * @return `size_t` The index of the task in the scheduler, returns `std::numeric_limits<size_t>::max()` if the task could not be added
 	 */
-	size_t AddTask(const std::function<void()>& task, uint32_t interval, uint32_t startOffset = 0, bool enabled = true)
-	{
-		if (startOffset >= timerRollOver || interval >= timerRollOver)
-			return std::numeric_limits<size_t>::max();
-
-		for (size_t i = 0; i < MaxTasks; i++)
-		{
-			if (tasks[i] == nullptr)
-			{
-
-				tasks[i]        = task;
-				intervals[i]    = interval;
-				nextUpdates[i]  = GetFirstUpdate(counter, interval, startOffset);
-				enabledTasks[i] = enabled;
-				return i;
-			}
-		}
-
-		return std::numeric_limits<size_t>::max();
-	}
+	size_t AddTask(const std::function<void()>& task, uint32_t interval, uint32_t startOffset = 0, bool enabled = true);
 
 	/**
 	 * @brief Removes a task from the scheduler
@@ -205,18 +140,7 @@ class Scheduler
 	 * @param index The index of the task to remove
 	 * @return `bool` Whether the task was removed successfully
 	 */
-	bool RemoveTask(size_t index)
-	{
-		if (index >= MaxTasks)
-			return false;
-
-		tasks[index]        = nullptr;
-		intervals[index]    = 0;
-		nextUpdates[index]  = 0;
-		enabledTasks[index] = false;
-
-		return true;
-	}
+	bool RemoveTask(size_t index);
 
 	/**
 	 * @brief Enable a task

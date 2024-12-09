@@ -37,12 +37,17 @@ uint32_t GetTimerInputFrequency(TIM_TypeDef* tim)
 	return frequency;
 }
 
-void SetTimerFrequency(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision)
+bool SetTimerFrequency(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision)
 {
 	uint32_t inputFrequency = GetTimerInputFrequency(tim);
 
 	uint32_t prescaler = inputFrequency / (frequency * precision);
 
+	if (prescaler > 0x10000)
+		return false;
+
 	tim->ARR = precision - 1;
 	tim->PSC = prescaler - 1;
+
+	return true;
 }

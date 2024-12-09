@@ -62,7 +62,7 @@ class HighPrecisionCounter
 	 * @brief Update the counter
 	 * @remark This function should be called in the timer interrupt
 	 */
-	void Update();
+	void Update() __attribute__((section(".RamFunc")));
 
 	/**
 	 * @brief Get the current count of the timer
