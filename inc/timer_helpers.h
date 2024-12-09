@@ -41,6 +41,24 @@ uint32_t GetTimerInputFrequency(TIM_TypeDef* tim);
  */
 bool SetTimerFrequency(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision);
 
+/**
+ * @brief Convert a PWM value to a CCR value
+ * 
+ * @param tim The timer peripheral
+ * @param pwm The PWM value (0-1)
+ * @return `uint32_t` The CCR value
+ */
+uint32_t PwmToCCR(TIM_TypeDef* tim, float pwm);
+
+/**
+ * @brief Get the CCR value for a channel
+ * 
+ * @param tim The timer peripheral
+ * @param channel The channel bitmask to get the CCR value of
+ * @return `volatile uint32_t*` The CCR value
+ */
+volatile uint32_t* ChannelToCCR(TIM_TypeDef* tim, uint32_t channel);
+
 #ifdef __cplusplus
 }
 #endif

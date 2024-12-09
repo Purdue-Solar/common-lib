@@ -51,3 +51,26 @@ bool SetTimerFrequency(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision)
 
 	return true;
 }
+
+uint32_t PwmToCCR(TIM_TypeDef* tim, float pwm)
+{
+	uint32_t arr = tim->ARR;
+	return (uint32_t)(arr * pwm);
+}
+
+volatile uint32_t* ChannelToCCR(TIM_TypeDef* tim, uint32_t channel)
+{
+	switch (channel)
+	{
+	case TIM_CHANNEL_1:
+		return &tim->CCR1;
+	case TIM_CHANNEL_2:
+		return &tim->CCR2;
+	case TIM_CHANNEL_3:
+		return &tim->CCR3;
+	case TIM_CHANNEL_4:
+		return &tim->CCR4;
+	default:
+		return NULL;
+	}
+}
