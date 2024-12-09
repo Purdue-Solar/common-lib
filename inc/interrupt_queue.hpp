@@ -36,6 +36,11 @@ class InterruptQueue
 		InterruptQueue::InterruptsPending = InterruptQueue::InterruptsPending + 1;
 	}
 
+	static void AddInterrupt(const std::function<void()>& function)
+	{
+		InterruptQueue::AddInterrupt(Interrupt(function));
+	}
+
 	static void HandleQueue();
 };
 
