@@ -6,7 +6,9 @@
 #include STM32_INCLUDE(STM32_PROCESSOR, hal_tim.h)
 #include STM32_INCLUDE(STM32_PROCESSOR, hal_rcc.h)
 
+#include <array>
 #include <cstdint>
+#include <functional>
 
 namespace PSR
 {
@@ -14,64 +16,82 @@ namespace PSR
 class HighPrecisionCounter
 {
   private:
-	TIM_HandleTypeDef* const htim;
+	TIM_TypeDef* const tim;
 	const uint32_t timerPrecision;
 	uint32_t upperCount;
 
-	static HighPrecisionCounter* instance;
-
-	static void TimerCallback(TIM_HandleTypeDef* htim);
-
-	static uint32_t GetTimerInputFrequency(TIM_TypeDef* tim)
+	struct DelayedCallback
 	{
-		RCC_ClkInitTypeDef clkConfig;
-		uint32_t latency;
-		uint32_t frequency;
+		uint64_t DelayUntil;
+		std::function<void()> Callback;
 
-		HAL_RCC_GetClockConfig(&clkConfig, &latency);
+		DelayedCallback()
+			: DelayUntil(0), Callback(nullptr)
+		{}
+	};
 
-#ifdef APB3PERIPH_BASE
-		if ((size_t)tim >= (size_t)APB3PERIPH_BASE) {
-			frequency = HAL_RCC_GetPCLK3Freq();
-			if (clkConfig.APB3CLKDivider != RCC_HCLK_DIV1)
-				frequency *= 2;
-		}
-		else
-#endif
-#ifdef APB2PERIPH_BASE
-			if ((size_t)tim >= (size_t)APB2PERIPH_BASE)
-		{
-			frequency = HAL_RCC_GetPCLK2Freq();
-			if (clkConfig.APB2CLKDivider != RCC_HCLK_DIV1)
-				frequency *= 2;
-		}
-		else
-#endif
-			if ((size_t)tim >= (size_t)APB1PERIPH_BASE)
-		{
-			frequency = HAL_RCC_GetPCLK1Freq();
-			if (clkConfig.APB1CLKDivider != RCC_HCLK_DIV1)
-				frequency *= 2;
-		}
-		else
-			frequency = HAL_RCC_GetHCLKFreq();
+	static constexpr size_t MaxCallbacks = 32;
+	std::array<DelayedCallback, MaxCallbacks> delayedCallbacks;
 
-		return frequency;
-	}
+	bool isInitialized = false;
+
+	void HandleDelayCallbacks();
+	void ClearCallbacks();
 
   public:
-	constexpr HighPrecisionCounter(TIM_HandleTypeDef* const htim, uint32_t timerPrecision) : htim(htim), timerPrecision(timerPrecision), upperCount(0) {}
+	static constexpr uint32_t MillesecondsToMicroseconds = 1000;
 
-	void Init();
+	/**
+	 * @brief Construct a new High Precision Counter object
+	 *
+	 * @param tim The timer peripheral to use for the counter
+	 * @param timerPrecision The number of microseconds before the counter rolls over
+	 */
+	HighPrecisionCounter(TIM_TypeDef* const tim, uint32_t timerPrecision)
+		: tim(tim), timerPrecision(timerPrecision), upperCount(0), delayedCallbacks()
+	{}
 
-	uint64_t GetCount() const;
+	/**
+	 * @brief Initialize the counter
+	 *
+	 * @return `bool` Whether the counter was initialized successfully, or is already initialized
+	 */
+	bool Init();
 
-	void Reset()
+	/**
+	 * @brief Update the counter
+	 * @remark This function should be called in the timer interrupt
+	 */
+	void Update();
+
+	/**
+	 * @brief Get the current count of the timer
+	 *
+	 * @return `uint64_t` The current count in microseconds
+	 */
+	uint64_t GetCount() const
 	{
-		upperCount          = 0;
-		htim->Instance->CNT = 0;
+		return this->upperCount + this->tim->CNT;
 	}
 
+	/**
+	 * @brief Reset the counter and clear all callbacks
+	 */
+	void Reset()
+	{
+		upperCount = 0;
+		tim->CNT   = 0;
+
+		ClearCallbacks();
+	}
+
+	/**
+	 * @brief Delay for a number of microseconds
+	 *
+	 * @remark This function will block execution for the specified number of microseconds
+	 *
+	 * @param microseconds The number of microseconds to delay
+	 */
 	void Delay(int32_t microseconds)
 	{
 		if (microseconds < 0)
@@ -82,6 +102,17 @@ class HighPrecisionCounter
 		while (GetCount() < end) {
 		}
 	}
+
+	/**
+	 * @brief Add a callback to be called after a delay
+	 *
+	 * @remark The callback will be called in a non-interrupt context, after all other interrupts have been handled
+	 *
+	 * @param delay The delay in ms
+	 * @param callback The callback to execute
+	 * @return `bool` Whether the callback was added
+	 */
+	bool AddDelayedCallback(uint32_t delay, const std::function<void()>& callback);
 };
 
 } // namespace PSR
