@@ -2,36 +2,79 @@
 
 using namespace PSR;
 
-static std::shared_ptr<char[]> emptyMessage(new char[1]{ '\0' });
+using Error = ErrorMessage::Error;
 
-std::shared_ptr<char[]> ErrorMessage::errorMessage = emptyMessage;
+std::shared_ptr<Error> Error::EmptyError = std::shared_ptr<Error>(new Error(""));
+
+std::shared_ptr<Error> ErrorMessage::error = Error::EmptyError;
 
 void ErrorMessage::ClearMessage()
 {
-	errorMessage = emptyMessage;
+	error = Error::EmptyError;
 }
 
-const char* ErrorMessage::SetMessage(const char* message)
+size_t ErrorMessage::GetRequiredMessageSize(const std::shared_ptr<Error>& error, size_t depth)
 {
-	errorMessage = std::shared_ptr<char[]>(new char[strlen(message) + 1]);
-	strcpy(errorMessage.get(), message);
+	size_t size = depth + strlen(error->Message.get()) + 1; // +depth for tabs, +1 for newline
 
-	return errorMessage.get();
+	if (error->InnerError != nullptr)
+		size += GetRequiredMessageSize(error->InnerError, depth + 1);
+
+	return size + 1; // +1 for null terminator
 }
 
-const char* ErrorMessage::WrapMessage(const char* message)
+static char* WriteInnerErrorsInternal(const std::shared_ptr<Error>& error, char* buffer, size_t depth = 0)
 {
-	const char* innerError = errorMessage.get();
-	
-	size_t errLen = strlen(innerError);
-	size_t mesLen = strlen(message);
-	
-	size_t length = errLen + mesLen + 2;	// 1 for space, 1 for null terminator
+	size_t messageLen = strlen(error->Message.get());
+	for (size_t i = 0; i < depth; i++)
+		*(buffer++) = '\t';
 
-	std::shared_ptr<char[]> newMessage = std::shared_ptr<char[]>(new char[length]);
-	snprintf(newMessage.get(), length, "%s %s", message, innerError);
+	memcpy(buffer, error->Message.get(), messageLen);
+	buffer += messageLen;
+	*(buffer++) = '\n';
 
-	errorMessage = newMessage;
+	if (error->InnerError != nullptr)
+		buffer = WriteInnerErrorsInternal(error->InnerError, buffer, depth + 1);
+	else
+		*(buffer++) = '\0';
 
-	return errorMessage.get();
+	return buffer;
+}
+
+std::shared_ptr<char[]> ErrorMessage::WriteInnerErrors(const std::shared_ptr<Error>& error)
+{
+	if (error == Error::EmptyError || error == nullptr)
+		return Error::EmptyError.get()->Message;
+
+	size_t size = GetRequiredMessageSize(error);
+	std::shared_ptr<char[]> message(new char[size]);
+
+	WriteInnerErrorsInternal(error, message.get());
+
+	return message;
+}
+
+static void PrintInternal(const std::shared_ptr<Error>& error, size_t depth = 0)
+{
+	constexpr const char* tabString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+	constexpr size_t takeChars = 1;
+
+	if (depth >= (sizeof(tabString) - 1) / takeChars)
+	{
+		printf("%sMore inner errors...\n", tabString);
+		return;
+	}
+
+	printf("%.*s%s\n", takeChars * depth, tabString, error->Message.get());
+
+	if (error->InnerError != nullptr)
+		PrintInternal(error->InnerError, depth + 1);
+}
+
+void ErrorMessage::PrintMessage()
+{
+	if (error == nullptr)
+		return;
+
+	PrintInternal(error);
 }

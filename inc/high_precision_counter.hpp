@@ -18,7 +18,7 @@ class HighPrecisionCounter
   private:
 	TIM_TypeDef* const tim;
 	const uint32_t timerPrecision;
-	uint32_t upperCount;
+	uint64_t upperCount;
 
 	struct DelayedCallback
 	{

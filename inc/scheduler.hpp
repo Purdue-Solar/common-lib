@@ -135,6 +135,20 @@ class Scheduler
 	size_t AddTask(const std::function<void()>& task, uint32_t interval, uint32_t startOffset = 0, bool enabled = true);
 
 	/**
+	 * @brief Add a task to the scheduler
+	 * 
+	 * @param task The function to call when the task is due
+	 * @param interval The interval in seconds at which to run the task. Zero indicates a one-shot task
+	 * @param startOffset The offset from zero in seconds at which the task will start to run
+	 * @param enabled Whether the task is enabled
+	 * @return `size_t` The index of the task in the scheduler, returns `std::numeric_limits<size_t>::max()` if the task could not be added
+	 */
+	size_t AddTask(const std::function<void()>& task, float interval, float startOffset = 0, bool enabled = true)
+	{
+		return AddTask(task, static_cast<uint32_t>(interval * frequency), static_cast<uint32_t>(startOffset * frequency), enabled);
+	}
+
+	/**
 	 * @brief Removes a task from the scheduler
 	 *
 	 * @param index The index of the task to remove
