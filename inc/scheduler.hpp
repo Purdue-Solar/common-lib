@@ -62,6 +62,8 @@ class Scheduler
 
 	/// @brief Whether the scheduler is initialized
 	bool isInitialized = false;
+	/// @brief Whether the scheduler is paused
+	bool paused = false;
 	
 
 	static constexpr uint32_t GetNextUpdate(uint32_t counter, uint32_t rollOver, uint32_t interval)
@@ -226,6 +228,42 @@ class Scheduler
 			return 0;
 
 		return intervals[index];
+	}
+
+	/**
+	 * @brief Get whether the scheduler is paused
+	 * 
+	 * @return `bool` Whether the scheduler is paused
+	 */
+	bool IsPaused() const
+	{
+		return paused;
+	}
+
+	/**
+	 * @brief Pause the scheduler
+	 */
+	void Pause()
+	{
+		paused = true;
+	}
+
+	/**
+	 * @brief Resume the scheduler
+	 */
+	void Resume()
+	{
+		paused = false;
+	}
+
+	/**
+	 * @brief Set the paused state of the scheduler
+	 * 
+	 * @param paused Whether the scheduler is paused
+	 */
+	void SetPaused(bool paused)
+	{
+		this->paused = paused;
 	}
 };
 

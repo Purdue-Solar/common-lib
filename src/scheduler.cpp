@@ -45,14 +45,11 @@ bool Scheduler::Init()
 
 void Scheduler::Update()
 {
-	if (!isInitialized)
+	if (!isInitialized || paused)
 		return;
 
 	if (++counter >= timerRollOver)
-	{
 		counter = 0;
-		printf("Scheduler: Counter rolled over\n");
-	}
 
 	// Uses highest task index to avoid iterating through all tasks
 	for (size_t i = 0; i < highestTaskIndex; i++)
