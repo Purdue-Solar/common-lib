@@ -57,9 +57,10 @@ std::shared_ptr<char[]> ErrorMessage::WriteInnerErrors(const std::shared_ptr<Err
 static void PrintInternal(const std::shared_ptr<Error>& error, size_t depth = 0)
 {
 	constexpr const char* tabString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+	constexpr size_t tabChars    = 16;
 	constexpr size_t takeChars = 1;
 
-	if (depth >= (sizeof(tabString) - 1) / takeChars)
+	if (depth >= tabChars / takeChars)
 	{
 		printf("%sMore inner errors...\n", tabString);
 		return;
@@ -77,4 +78,5 @@ void ErrorMessage::PrintMessage()
 		return;
 
 	PrintInternal(error);
+	ClearMessage();
 }
