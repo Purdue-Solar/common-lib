@@ -49,17 +49,26 @@ void Scheduler::Update()
 		return;
 
 	if (++counter >= timerRollOver)
+	{
 		counter = 0;
+		printf("Scheduler: Counter rolled over\n");
+	}
 
-	for (size_t i = 0; i < MaxTasks; i++)
+	// Uses highest task index to avoid iterating through all tasks
+	for (size_t i = 0; i < highestTaskIndex; i++)
 	{
 		std::function<void()>& task = tasks[i];
 		if (task == nullptr || !enabledTasks[i])
 			continue;
 
-		if (counter >= nextUpdates[i])
+		int32_t diff = counter - nextUpdates[i];
+
+		if (diff >= 0 && diff < (timerPrecision / 2))
 		{
-			InterruptQueue::AddInterrupt(task);
+			// If the interrupt queue is full, try again next time
+			if (!InterruptQueue::AddInterrupt(task))
+				continue;
+			
 			if (intervals[i] == 0)
 			{
 				task            = nullptr;
@@ -84,11 +93,14 @@ size_t Scheduler::AddTask(const std::function<void()>& task, uint32_t interval, 
 	{
 		if (tasks[i] == nullptr)
 		{
-
 			tasks[i]        = task;
 			intervals[i]    = interval;
 			nextUpdates[i]  = GetFirstUpdate(counter, interval, startOffset);
 			enabledTasks[i] = enabled;
+
+			if (i >= highestTaskIndex)
+				highestTaskIndex = i + 1; // Update highest task index to the empty slot above
+
 			return i;
 		}
 	}
@@ -105,6 +117,18 @@ bool Scheduler::RemoveTask(size_t index)
 	intervals[index]    = 0;
 	nextUpdates[index]  = 0;
 	enabledTasks[index] = false;
+
+	if (index == highestTaskIndex - 1)
+	{
+		for (size_t i = highestTaskIndex - 1; i > 0; i--)
+		{
+			if (tasks[i] != nullptr)
+			{
+				highestTaskIndex = i + 1;
+				break;
+			}
+		}
+	}
 
 	return true;
 }

@@ -32,6 +32,9 @@ class HighPrecisionCounter
 
 	static constexpr size_t MaxCallbacks = 32;
 	std::array<DelayedCallback, MaxCallbacks> delayedCallbacks;
+	
+	/// @brief The highest index of a delayed callback
+	size_t highestCallbackIndex = 0;
 
 	bool isInitialized = false;
 
@@ -72,6 +75,26 @@ class HighPrecisionCounter
 	uint64_t GetCount() const
 	{
 		return this->upperCount + this->tim->CNT;
+	}
+
+	uint64_t GetUpperCount() const
+	{
+		return this->upperCount;
+	}
+
+	uint32_t GetLowerCount() const
+	{
+		return this->tim->CNT;
+	}
+
+	uint32_t GetPrecision() const
+	{
+		return this->timerPrecision;
+	}
+
+	TIM_TypeDef* GetTimer() const
+	{
+		return this->tim;
 	}
 
 	/**

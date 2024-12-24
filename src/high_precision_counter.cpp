@@ -39,15 +39,20 @@ bool HighPrecisionCounter::Init()
 void HighPrecisionCounter::HandleDelayCallbacks()
 {
 	uint64_t count = GetCount();
-	for (size_t i = 0; i < delayedCallbacks.size(); i++)
+	for (size_t i = 0; i < highestCallbackIndex; i++)
 	{
 		DelayedCallback& delayedCallback = delayedCallbacks[i];
 		if (delayedCallback.Callback != nullptr && delayedCallback.DelayUntil != 0 && count >= delayedCallback.DelayUntil)
 		{
-			InterruptQueue::AddInterrupt(delayedCallback.Callback);
+			// If the interrupt queue is full, try again next time
+			if (!InterruptQueue::AddInterrupt(delayedCallback.Callback))
+				continue;
 
 			delayedCallback.DelayUntil = 0;
 			delayedCallback.Callback   = nullptr;
+
+			if (i + 1 >= highestCallbackIndex)
+				highestCallbackIndex--;
 		}
 	}
 }
@@ -76,6 +81,10 @@ bool HighPrecisionCounter::AddDelayedCallback(uint32_t delay, const std::functio
 		{
 			delayedCallback.DelayUntil = delayUntil;
 			delayedCallback.Callback   = callback;
+
+			if (i >= highestCallbackIndex)
+				highestCallbackIndex = i + 1;
+
 			return true;
 		}
 	}

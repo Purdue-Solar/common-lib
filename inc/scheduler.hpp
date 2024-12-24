@@ -57,8 +57,12 @@ class Scheduler
 	/// @brief The number of ticks before the scheduler rolls over
 	const uint32_t timerRollOver;
 
+	/// @brief The highest index of a task in the scheduler
+	size_t highestTaskIndex = 0;
+
 	/// @brief Whether the scheduler is initialized
 	bool isInitialized = false;
+	
 
 	static constexpr uint32_t GetNextUpdate(uint32_t counter, uint32_t rollOver, uint32_t interval)
 	{
