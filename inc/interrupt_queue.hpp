@@ -6,23 +6,18 @@
 
 #include <array>
 #include <functional>
-#include <queue>
 
 namespace PSR
 {
 
 class InterruptQueue
 {
-	static constexpr size_t MaxDepth = 64;
+	static constexpr size_t MaxDepth = 32;
 	static std::array<std::function<void()>, MaxDepth> Queue;
 	static volatile size_t InterruptsPending;
 
   public:
-	static void AddInterrupt(const std::function<void()>& callback)
-	{
-		Queue[InterruptQueue::InterruptsPending] = callback;
-		InterruptQueue::InterruptsPending        = InterruptQueue::InterruptsPending + 1;
-	}
+	static bool AddInterrupt(const std::function<void()>& callback);
 
 	static void HandleQueue() __attribute__((section(".RamFunc")));
 };
