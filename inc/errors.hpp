@@ -23,7 +23,7 @@ class ErrorMessage
 		std::shared_ptr<char[]> Message;
 		std::shared_ptr<Error> InnerError;
 
-		static std::shared_ptr<Error> EmptyError;
+		static constexpr const char* EmptyError = "";
 
 		static void EmptyDeleter(char* message) {}
 
@@ -61,10 +61,14 @@ class ErrorMessage
 	 */
 	static const char* GetMessage()
 	{
-		if (error == Error::EmptyError || error == nullptr)
-			return Error::EmptyError->Message.get(); // Return empty error message
+		if (error == nullptr)
+			return Error::EmptyError; // Return empty error message
 
-		return WriteInnerErrors(error).get();
+		std::shared_ptr<char[]> message = WriteInnerErrors(error);
+		if (message == nullptr)
+			return Error::EmptyError; // Return empty error message
+		
+		return message.get();
 	}
 
 	/**

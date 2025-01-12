@@ -1,16 +1,17 @@
 #include "errors.hpp"
 
+#include <malloc.h>
+#include <string>
+
 using namespace PSR;
 
 using Error = ErrorMessage::Error;
 
-std::shared_ptr<Error> Error::EmptyError = std::shared_ptr<Error>(new Error(""));
-
-std::shared_ptr<Error> ErrorMessage::error = Error::EmptyError;
+std::shared_ptr<Error> ErrorMessage::error = nullptr;
 
 void ErrorMessage::ClearMessage()
 {
-	error = Error::EmptyError;
+	error = nullptr;
 }
 
 size_t ErrorMessage::GetRequiredMessageSize(const std::shared_ptr<Error>& error, size_t depth)
@@ -43,8 +44,8 @@ static char* WriteInnerErrorsInternal(const std::shared_ptr<Error>& error, char*
 
 std::shared_ptr<char[]> ErrorMessage::WriteInnerErrors(const std::shared_ptr<Error>& error)
 {
-	if (error == Error::EmptyError || error == nullptr)
-		return Error::EmptyError.get()->Message;
+	if (error == nullptr)
+		return nullptr;
 
 	size_t size = GetRequiredMessageSize(error);
 	std::shared_ptr<char[]> message(new char[size]);
@@ -56,13 +57,13 @@ std::shared_ptr<char[]> ErrorMessage::WriteInnerErrors(const std::shared_ptr<Err
 
 static void PrintInternal(const std::shared_ptr<Error>& error, size_t depth = 0)
 {
-	constexpr const char* tabString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-	constexpr size_t tabChars    = 16;
-	constexpr size_t takeChars = 1;
+	constexpr const char* tabString = "\t\t\t\t\t\t\t\tMore inner errors...";
+	constexpr size_t tabChars       = 8;
+	constexpr size_t takeChars      = 1;
 
 	if (depth >= tabChars / takeChars)
 	{
-		printf("%sMore inner errors...\n", tabString);
+		puts(tabString);
 		return;
 	}
 
