@@ -13,4 +13,5 @@ Includes some frequently used pieces of code for STM32 microcontrollers.
 - gpio_pin.hpp - Wrapper class for easily manipulating GPIO pins
 - high_precision_counter.hpp - Microsecond counter for measuring time over long periods
 - interrupt_queue.hpp - Queue to allow generating callbacks during interrupts that get run in a non-interrupt context
+- memory_operations.hpp - Simplified methods for reading and writing from byte arrays
 - scheduler.hpp - Class to run tasks at regular intervals
