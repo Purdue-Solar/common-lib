@@ -17,7 +17,7 @@ class InterruptQueue
 	static volatile size_t InterruptsPending;
 
   public:
-	static bool AddInterrupt(const std::function<void()>& callback);
+	static bool AddInterrupt(const std::function<void()>& callback) __attribute__((section(".RamFunc")));
 
 	static void HandleQueue() __attribute__((section(".RamFunc")));
 };
