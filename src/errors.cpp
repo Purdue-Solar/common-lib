@@ -8,7 +8,8 @@ std::shared_ptr<Error> ErrorMessage::error = nullptr;
 
 void ErrorMessage::ClearMessage()
 {
-	error = nullptr;
+	if (error != nullptr)
+		error = nullptr;
 }
 
 size_t ErrorMessage::GetRequiredMessageSize(const std::shared_ptr<Error>& error, size_t depth)

@@ -15,9 +15,11 @@
 namespace PSR
 {
 
+/// @brief Contains logic for creating and displaying nested error messages
 class ErrorMessage
 {
   public:
+	/// @brief Structure for a single nested error message
 	struct Error
 	{
 		std::shared_ptr<char[]> Message;
@@ -77,7 +79,7 @@ class ErrorMessage
 	static void PrintMessage();
 
 	/// @brief Set the current error message
-	/// @param message A message to set the error. DO NOT POINT TO A STACK ALLOCATED BUFFER.
+	/// @param message A message to set the error. @remark DO NOT POINT TO A STACK ALLOCATED BUFFER.
 	static void SetMessage(const char* message)
 	{
 		error = std::shared_ptr<Error>(new Error(message));
@@ -91,7 +93,7 @@ class ErrorMessage
 	}
 
 	/// @brief Wrap the current error message with a new message
-	/// @param message A message to wrap the inner error with. DO NOT POINT TO A STACK ALLOCATED BUFFER.
+	/// @param message A message to wrap the inner error with. @remark DO NOT POINT TO A STACK ALLOCATED BUFFER.
 	static void WrapMessage(const char* message)
 	{
 		error = std::shared_ptr<Error>(new Error(message, error));

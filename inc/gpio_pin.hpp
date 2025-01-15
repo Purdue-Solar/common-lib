@@ -22,8 +22,8 @@ namespace PSR
 class GpioPin
 {
   private:
-	volatile GPIO_TypeDef* port; /// @brief The GPIO port
-	uint32_t pin;                /// @brief The pin bitmask
+	volatile GPIO_TypeDef* port; ///< @brief The GPIO port
+	uint32_t pin;                ///< @brief The pin bitmask
 
   public:
 	constexpr GpioPin(GPIO_TypeDef* port, uint32_t pin)

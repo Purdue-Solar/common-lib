@@ -89,9 +89,10 @@ class Scheduler
 	 *
 	 * @param tim The timer peripheral to use for the scheduler
 	 * @param frequency The tick frequency of the scheduler
+	 * @param precision The ARR precision for the timer
 	 * @param rollOver The number of ticks before the scheduler rolls over
 	 */
-	Scheduler(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision = 32, uint32_t rollOver = std::numeric_limits<uint32_t>::max())
+	Scheduler(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision = 32, uint32_t rollOver = std::numeric_limits<uint32_t>::max() / 2)
 		: tim(tim), tasks(), intervals(), startOffsets(), nextUpdates(), enabledTasks(), frequency(frequency), timerPrecision(precision), timerRollOver(rollOver)
 	{ }
 
