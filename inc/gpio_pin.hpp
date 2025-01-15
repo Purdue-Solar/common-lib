@@ -1,5 +1,5 @@
 /**
- * @file pin.hpp
+ * @file gpio_pin.hpp
  * @author Purdue Solar Racing (Aidan Orr)
  * @brief Wraps a GPIO port and pin for easy manipulation
  * @version 0.1

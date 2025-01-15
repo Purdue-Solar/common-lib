@@ -1,5 +1,5 @@
 /**
- * @file timer_helpers.hpp
+ * @file timer_helpers.h
  * @author Purdue Solar Racing
  * @brief Commmon timer helper functions
  * @version 0.1
