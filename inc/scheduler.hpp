@@ -37,13 +37,13 @@ class Scheduler
 	TIM_TypeDef* const tim;
 	/// @brief The tasks to run
 	/// @remark `nullptr` indicates an empty slot
-	std::array<std::function<void()>, MaxTasks> tasks;
+	std::array<std::function<void()>, MaxTasks> tasks = { nullptr };
 	/// @brief The intervals at which to run the tasks
-	std::array<uint32_t, MaxTasks> intervals;
+	std::array<uint32_t, MaxTasks> intervals = { 0 };
 	/// @brief The offset from zero at which the tasks will run
-	std::array<uint32_t, MaxTasks> startOffsets;
+	std::array<uint32_t, MaxTasks> startOffsets = { 0 };
 	/// @brief The counter value when the tasks will run next
-	std::array<uint32_t, MaxTasks> nextUpdates;
+	std::array<uint32_t, MaxTasks> nextUpdates = { 0 };
 	/// @brief The enabled tasks
 	std::bitset<MaxTasks> enabledTasks;
 
@@ -64,7 +64,6 @@ class Scheduler
 	bool isInitialized = false;
 	/// @brief Whether the scheduler is paused
 	bool paused = false;
-	
 
 	static constexpr uint32_t GetNextUpdate(uint32_t counter, uint32_t rollOver, uint32_t interval)
 	{
@@ -92,29 +91,41 @@ class Scheduler
 	 * @param precision The ARR precision for the timer
 	 * @param rollOver The number of ticks before the scheduler rolls over
 	 */
-	Scheduler(TIM_TypeDef* tim, uint32_t frequency, uint32_t precision = 32, uint32_t rollOver = std::numeric_limits<uint32_t>::max() / 2)
-		: tim(tim), tasks(), intervals(), startOffsets(), nextUpdates(), enabledTasks(), frequency(frequency), timerPrecision(precision), timerRollOver(rollOver)
-	{ }
+	Scheduler(
+		TIM_TypeDef* tim,
+		uint32_t frequency,
+		uint32_t precision = 32,
+		uint32_t rollOver  = std::numeric_limits<uint32_t>::max() / 2)
+		: tim(tim), frequency(frequency), timerPrecision(precision), timerRollOver(rollOver)
+	{}
 
-	constexpr size_t size() const
-	{
-		return MaxTasks;
-	}
+	/**
+	 * @brief Get the maximum number of tasks in the scheduler
+	 *
+	 * @return `size_t` The maximum number of tasks in the scheduler
+	 */
+	constexpr size_t Size() const { return MaxTasks; }
 
-	uint32_t GetFrequency() const
-	{
-		return frequency;
-	}
+	/**
+	 * @brief Get the frequency at which the scheduler runs
+	 *
+	 * @return `uint32_t` The frequency of the scheduler in Hertz
+	 */
+	uint32_t GetFrequency() const { return frequency; }
 
-	uint32_t GetRollOverValue() const
-	{
-		return timerRollOver;
-	}
+	/**
+	 * @brief Get the value at which the internal counter will roll over to zero
+	 *
+	 * @return `uint32_t` The roll over value of the scheduler
+	 */
+	uint32_t GetRollOverValue() const { return timerRollOver; }
 
-	uint32_t GetCounter() const
-	{
-		return counter;
-	}
+	/**
+	 * @brief Get the current value of the internal counter
+	 *
+	 * @return `uint32_t` The current value of the internal counter
+	 */
+	uint32_t GetCounter() const { return counter; }
 
 	/**
 	 * @brief Initialize the scheduler
@@ -143,7 +154,7 @@ class Scheduler
 
 	/**
 	 * @brief Add a task to the scheduler
-	 * 
+	 *
 	 * @param task The function to call when the task is due
 	 * @param interval The interval in seconds at which to run the task. Zero indicates a one-shot task
 	 * @param startOffset The offset from zero in seconds at which the task will start to run
@@ -233,39 +244,27 @@ class Scheduler
 
 	/**
 	 * @brief Get whether the scheduler is paused
-	 * 
+	 *
 	 * @return `bool` Whether the scheduler is paused
 	 */
-	bool IsPaused() const
-	{
-		return paused;
-	}
+	bool IsPaused() const { return paused; }
 
 	/**
 	 * @brief Pause the scheduler
 	 */
-	void Pause()
-	{
-		paused = true;
-	}
+	void Pause() { paused = true; }
 
 	/**
 	 * @brief Resume the scheduler
 	 */
-	void Resume()
-	{
-		paused = false;
-	}
+	void Resume() { paused = false; }
 
 	/**
 	 * @brief Set the paused state of the scheduler
-	 * 
-	 * @param paused Whether the scheduler is paused
+	 *
+	 * @param paused Whether the scheduler should be paused
 	 */
-	void SetPaused(bool paused)
-	{
-		this->paused = paused;
-	}
+	void SetPaused(bool paused) { this->paused = paused; }
 };
 
 } // namespace PSR

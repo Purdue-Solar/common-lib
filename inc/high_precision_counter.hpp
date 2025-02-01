@@ -63,9 +63,11 @@ class HighPrecisionCounter
 
 	/**
 	 * @brief Update the counter
+	 * @param statusRegister The timer status register when the interrupt was triggered
+	 * @param suppressCallbacks Whether to suppress the delayed callbacks
 	 * @remark This function should be called in the timer interrupt
 	 */
-	void Update() __attribute__((section(".RamFunc")));
+	void Update(uint32_t statusRegister, bool suppressCallbacks = false) __attribute__((section(".RamFunc")));
 
 	/**
 	 * @brief Get the current count of the timer

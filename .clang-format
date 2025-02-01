@@ -30,7 +30,7 @@ AlignConsecutiveAssignments: Consecutive
 
 AlignOperands: Align
 AllowShortBlocksOnASingleLine: Always
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 BinPackParameters: false
 AlignArrayOfStructures: Right

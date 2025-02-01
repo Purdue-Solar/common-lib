@@ -4,14 +4,16 @@
 
 using namespace PSR;
 
-void HighPrecisionCounter::Update()
+void HighPrecisionCounter::Update(uint32_t statusRegister, bool suppressCallbacks)
 {
-	if (this->tim == nullptr || !this->isInitialized)
+	[[unlikely]] if (!this->isInitialized)
 		return;
 
-	this->upperCount += this->timerPrecision;
+	if ((statusRegister & TIM_SR_UIF) != 0)
+		this->upperCount += this->timerPrecision;
 
-	this->HandleDelayCallbacks();
+	if (!suppressCallbacks)
+		this->HandleDelayCallbacks();
 }
 
 bool HighPrecisionCounter::Init()
