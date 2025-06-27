@@ -18,7 +18,8 @@ class HighPrecisionCounter
   private:
 	TIM_TypeDef* const tim;
 	const uint32_t timerPrecision;
-	uint64_t upperCount;
+	uint64_t upperCount   = 0;
+	uint64_t lastSyncTime = 0; ///< @brief the last time the counter was synced with an external source
 
 	struct DelayedCallback
 	{
@@ -32,7 +33,7 @@ class HighPrecisionCounter
 
 	static constexpr size_t MaxCallbacks = 32;
 	std::array<DelayedCallback, MaxCallbacks> delayedCallbacks;
-	
+
 	/// @brief The highest index of a delayed callback
 	size_t highestCallbackIndex = 0;
 
@@ -51,7 +52,7 @@ class HighPrecisionCounter
 	 * @param timerPrecision The number of microseconds before the counter rolls over
 	 */
 	HighPrecisionCounter(TIM_TypeDef* const tim, uint32_t timerPrecision)
-		: tim(tim), timerPrecision(timerPrecision), upperCount(0), delayedCallbacks()
+		: tim(tim), timerPrecision(timerPrecision), delayedCallbacks()
 	{}
 
 	/**
@@ -79,24 +80,59 @@ class HighPrecisionCounter
 		return this->upperCount + this->tim->CNT;
 	}
 
+	/// @brief Get the current time in microseconds since the timer started
+	/// @return uint64_t The current time in microseconds
+	/// @remark This is an alias for GetCount()
+	uint64_t GetTime() const { return GetCount(); }
+
+	/**
+	 * @brief Get the upper count of the timer
+	 * 
+	 * @return uint64_t The current upper counter in microseconds
+	 */
 	uint64_t GetUpperCount() const
 	{
 		return this->upperCount;
 	}
 
+	/**
+	 * @brief Get the lower count from the timer
+	 * 
+	 * @return uint32_t The current lower counter in microseconds
+	 */
 	uint32_t GetLowerCount() const
 	{
 		return this->tim->CNT;
 	}
 
+	/**
+	 * @brief Get the number of microseconds before the lower counter rolls over
+	 * 
+	 * @return uint32_t The timer precision in microseconds
+	 */
 	uint32_t GetPrecision() const
 	{
 		return this->timerPrecision;
 	}
 
+	/**
+	 * @brief Get the timer peripheral used by this counter
+	 * 
+	 * @return TIM_TypeDef* The timer peripheral
+	 */
 	TIM_TypeDef* GetTimer() const
 	{
 		return this->tim;
+	}
+
+	/**
+	 * @brief Get the last time that the counter was synchronized with an external source
+	 * 
+	 * @return uint64_t The last synchronization time in microseconds
+	 */
+	uint64_t GetLastSyncTime() const
+	{
+		return this->lastSyncTime;
 	}
 
 	/**
@@ -104,8 +140,9 @@ class HighPrecisionCounter
 	 */
 	void Reset()
 	{
-		upperCount = 0;
-		tim->CNT   = 0;
+		upperCount   = 0;
+		lastSyncTime = 0;
+		tim->CNT     = 0;
 
 		ClearCallbacks();
 	}
@@ -138,6 +175,19 @@ class HighPrecisionCounter
 	 * @return `bool` Whether the callback was added
 	 */
 	bool AddDelayedCallback(uint32_t delay, const std::function<void()>& callback);
+
+	/// @brief Synchronize the counter with an external source
+	/// @param exectedDelay The expected delay from the previous call to this function
+	void Synchronize(uint32_t exectedDelay)
+	{
+		uint64_t currentTime = GetCount();
+		uint64_t expectedTime = lastSyncTime + exectedDelay;
+
+		int64_t delta = expectedTime - currentTime;
+
+		upperCount += delta;
+		lastSyncTime = GetCount();
+	}
 };
 
 } // namespace PSR

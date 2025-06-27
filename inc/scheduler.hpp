@@ -20,7 +20,9 @@
 
 #include <array>
 #include <bitset>
+#include <cstdint>
 #include <functional>
+#include <limits>
 
 namespace PSR
 {
@@ -30,6 +32,8 @@ namespace PSR
  */
 class Scheduler
 {
+  public:
+	static constexpr size_t InvalidTaskId = std::numeric_limits<size_t>::max();
   private:
 	static constexpr size_t MaxTasks = 32;
 

@@ -26,6 +26,13 @@ class GpioPin
 	uint32_t pin;                ///< @brief The pin bitmask
 
   public:
+
+	constexpr GpioPin()
+		: port(nullptr), pin(0)
+	{}
+
+	constexpr GpioPin(nullptr_t ptr) : GpioPin() {}
+
 	constexpr GpioPin(GPIO_TypeDef* port, uint32_t pin)
 		: port(port), pin(pin)
 	{}
@@ -37,7 +44,7 @@ class GpioPin
 
 	inline void Reset()
 	{
-		port->BRR = pin;
+		port->BSRR = pin << 16;
 	}
 
 	void Toggle()
@@ -57,6 +64,10 @@ class GpioPin
 	{
 		return (port->IDR & pin) != 0;
 	}
+
+	bool IsValid() const { return port != nullptr && pin != 0; }
+
+
 };
 
 } // namespace PSR

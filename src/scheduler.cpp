@@ -60,7 +60,7 @@ void Scheduler::Update()
 
 		int32_t diff = counter - nextUpdates[i];
 
-		if (diff >= 0 && diff < (timerPrecision / 2))
+		if (diff >= 0 && diff < (int32_t)(timerPrecision / 2))
 		{
 			// If the interrupt queue is full, try again next time
 			if (!InterruptQueue::AddInterrupt(task))
@@ -84,7 +84,7 @@ void Scheduler::Update()
 size_t Scheduler::AddTask(const std::function<void()>& task, uint32_t interval, uint32_t startOffset, bool enabled)
 {
 	if (startOffset >= timerRollOver || interval >= timerRollOver)
-		return std::numeric_limits<size_t>::max();
+		return InvalidTaskId;
 
 	for (size_t i = 0; i < MaxTasks; i++)
 	{
@@ -102,7 +102,7 @@ size_t Scheduler::AddTask(const std::function<void()>& task, uint32_t interval, 
 		}
 	}
 
-	return std::numeric_limits<size_t>::max();
+	return InvalidTaskId;
 }
 
 bool Scheduler::RemoveTask(size_t index)
